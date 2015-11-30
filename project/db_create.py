@@ -19,6 +19,6 @@ with sqlite3.connect(DATABASE_PATH) as connection:
 
 
 	cursor.execute('''
-				   INSERT into tasks (name, due_date, priority, status)
+				   INSERT INTO tasks (name, due_date, priority, status)
 				   VALUES ("Finish second tutorial", "03/25/2016", 10, 1)
 				   ''')
