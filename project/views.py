@@ -1,5 +1,5 @@
 from functools import wraps
-from forms import AddTaskForm
+from forms import AddTaskForm, RegisterForm, LoginForm
 
 from flask import Flask, request, session, render_template, flash, redirect, url_for
 
@@ -9,7 +9,7 @@ app = Flask(__name__)
 app.config.from_object("_config")
 db = SQLAlchemy(app)
 
-from models import Task
+from models import Task, User
 
 def login_required(test):
 	@wraps(test)
@@ -57,6 +57,20 @@ def new_task():
 			db.session.commit()
 			flash("New task has been added")
 	return redirect(url_for("tasks"))
+
+@app.route("/register", methods=["GET", "POST"])
+def register():
+	error = None
+	form = RegisterForm()
+	if form.validate_on_submit():
+		new_user = User(form.username.data, form.email.data, form.password.data)
+		db.session.add(new_user)
+		db.session.commit()
+		flash("New user has been registered")
+		return redirect(url_for("login"))
+	return render_template('register.html', form=form, error=error)
+
+
 
 @app.route("/complete/<int:task_id>")
 @login_required
