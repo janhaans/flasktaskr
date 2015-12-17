@@ -29,15 +29,20 @@ def logout():
 
 @app.route("/", methods=["GET", "POST"])
 def login():
-	if request.method=="POST":
-		if request.form["username"]==app.config["USER"] and request.form["password"]==app.config["PASSWORD"]:
+	error = None
+	form = LoginForm()
+	if form.validate_on_submit():
+		user = User.query.filter_by(name=form.username.data).first()
+		if user is not None and user.password == form.password.data:
 			session["logged_in"] = True
 			flash("Welcome")
 			return redirect(url_for("tasks"))
 		else:
-			error = "Invalid credentials, please try again"
-			return render_template("login.html", error=error)
-	return render_template("login.html")
+			error = "Invalid username or password"
+	else:
+		if request.method == "POST":
+			error = "All fields are required"
+	return render_template("login.html", form=form, error=error)
 
 @app.route("/tasks")
 @login_required
